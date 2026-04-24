@@ -23,6 +23,13 @@ def main() -> None:
     print(evolved_water.describe())
     print(evolved_water.attack())
 
+    print("\nTesting battle")
+    print(base_fire.describe())
+    print("vs")
+    print(base_water.describe())
+    print(base_fire.attack())
+    print(base_water.attack())
+
 
 if __name__ == "__main__":
     main()

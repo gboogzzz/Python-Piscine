@@ -3,26 +3,58 @@ from ex0.creature import Creature
 from ex1.capabilities import HealCapability, TransformCapability
 
 
-class Strategy(ABC):
+class BattleStrategy(ABC):
     @abstractmethod
-    def decide_action(self, actor: Creature, opponent: Creature) -> str:
+    def is_valid(self, actor: Creature) -> bool:
+        pass
+
+    @abstractmethod
+    def act(self, actor: Creature, opponent: Creature) -> str:
         pass
 
 
-class AggressiveStrategy(Strategy):
-    def decide_action(self, actor: Creature, opponent: Creature) -> str:
-        if isinstance(actor, TransformCapability):
-            return f"{actor.transform()}\n{actor.attack()}"
-        return f"{actor.attack()}"
+class NormalStrategy(BattleStrategy):
+    def is_valid(self, actor: Creature) -> bool:
+        return True
+
+    def act(self, actor: Creature, opponent: Creature) -> str:
+        return actor.attack()
 
 
-class DefensiveStrategy(Strategy):
-    def decide_action(self, actor: Creature, opponent: Creature) -> str:
-        if isinstance(actor, HealCapability):
-            return f"{actor.attack()}\n{actor.heal()}"
-        return f"{actor.attack()}"
+class AggressiveStrategy(BattleStrategy):
+
+    def is_valid(self, actor: Creature) -> bool:
+        return isinstance(actor, TransformCapability)
+
+    def act(self, actor: Creature, opponent: Creature) -> str:
+
+        if not isinstance(actor, TransformCapability):
+            raise Exception(
+                f"Invalid Creature '{actor.name}' "
+                "for AggressiveStrategy"
+            )
+
+        return (
+            f"{actor.transform()}\n"
+            f"{actor.attack()}\n"
+            f"{actor.revert()}"
+        )
 
 
-class CowardStrategy(Strategy):
-    def decide_action(self, actor: Creature, opponent: Creature) -> str:
-        return f"{actor.name} tries to hide!"
+class DefensiveStrategy(BattleStrategy):
+
+    def is_valid(self, actor: Creature) -> bool:
+        return isinstance(actor, HealCapability)
+
+    def act(self, actor: Creature, opponent: Creature) -> str:
+
+        if not isinstance(actor, HealCapability):
+            raise Exception(
+                f"Invalid Creature '{actor.name}' "
+                "for DefensiveStrategy"
+            )
+
+        return (
+            f"{actor.attack()}\n"
+            f"{actor.heal()}"
+        )
