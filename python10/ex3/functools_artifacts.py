@@ -1,7 +1,4 @@
-from functools import reduce
-from functools import partial
-from functools import lru_cache
-from functools import singledispatch
+from functools import reduce, partial, lru_cache, singledispatch
 from operator import add, mul
 from collections.abc import Callable
 from typing import Any
@@ -10,16 +7,20 @@ from typing import Any
 def spell_reducer(spells: list[int], operation: str) -> int:
     if not spells:
         return 0
-    operations = {
+    operations: dict[str, Callable] = {
         "add": add,
         "multiply": mul,
-        "max": max,
-        "min": min
+        "max": lambda a, b: max(a, b),
+        "min": lambda a, b: min(a, b)
     }
     if operation not in operations:
-        raise ValueError("Unknown operation")
-    
-    return reduce(operations[operation], spells)
+        print(f"Unknown operation: {operation}")
+        return 0
+    try:
+        return reduce(operations[operation], spells)
+    except Exception as e:
+        print(f"Error reducing spells: {e}")
+        return 0
 
 
 def partial_enchanter(base_enchantment: Callable) -> dict[str, Callable]:
@@ -32,6 +33,8 @@ def partial_enchanter(base_enchantment: Callable) -> dict[str, Callable]:
 
 @lru_cache(maxsize=None)
 def memoized_fibonacci(n: int) -> int:
+    if n < 0:
+        return 0
     if n < 2:
         return n
     return memoized_fibonacci(n - 1) + memoized_fibonacci(n - 2)
@@ -59,35 +62,35 @@ def spell_dispatcher() -> Callable[[Any], str]:
 
 
 if __name__ == "__main__":
-
     print("Testing spell reducer...")
     spells = [10, 20, 30, 40]
+    print(f"Sum: {spell_reducer(spells, 'add')}")
+    print(f"Product: {spell_reducer(spells, 'multiply')}")
+    print(f"Max: {spell_reducer(spells, 'max')}")
+    print(f"Min: {spell_reducer(spells, 'min')}")
+    print()
 
-    print("Sum:", spell_reducer(spells, "add"))
-    print("Product:", spell_reducer(spells, "multiply"))
-    print("Max:", spell_reducer(spells, "max"))
-    print("Min:", spell_reducer(spells, "min"))
-
-    print("\nTesting partial enchanter...")
+    print("Testing partial enchanter...")
 
     def enchant(power: int, element: str, target: str) -> str:
         return f"{element} enchantment on {target} with {power} power"
 
     enchantments = partial_enchanter(enchant)
-
     print(enchantments["fire"]("Sword"))
     print(enchantments["ice"]("Shield"))
     print(enchantments["lightning"]("Hammer"))
+    print()
 
-    print("\nTesting memoized fibonacci...")
-    print("Fib(0):", memoized_fibonacci(0))
-    print("Fib(1):", memoized_fibonacci(1))
-    print("Fib(10):", memoized_fibonacci(10))
-    print("Fib(15):", memoized_fibonacci(15))
+    print("Testing memoized fibonacci...")
+    print(f"Fib(0): {memoized_fibonacci(0)}")
+    print(f"Fib(1): {memoized_fibonacci(1)}")
+    print(f"Fib(10): {memoized_fibonacci(10)}")
+    print(f"Fib(15): {memoized_fibonacci(15)}")
+    print(f"Cache info: {memoized_fibonacci.cache_info()}")
+    print()
 
-    print("\nTesting spell dispatcher...")
+    print("Testing spell dispatcher...")
     dispatcher = spell_dispatcher()
-
     print(dispatcher(42))
     print(dispatcher("fireball"))
     print(dispatcher([1, 2, 3]))

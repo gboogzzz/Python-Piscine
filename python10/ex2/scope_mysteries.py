@@ -3,7 +3,8 @@ from typing import Any
 
 
 def mage_counter() -> Callable:
-    count = 0
+    count: int = 0
+
     def counter() -> int:
         nonlocal count
         count += 1
@@ -13,58 +14,63 @@ def mage_counter() -> Callable:
 
 
 def spell_accumulator(initial_power: int) -> Callable:
-    total_power = initial_power
-    def accumulator() -> int:
+    total_power: int = initial_power
+
+    def accumulator(amount: int) -> int:
         nonlocal total_power
-        total_power += initial_power
+        total_power += amount
         return total_power
-    
+
     return accumulator
 
 
 def enchantment_factory(enchantment_type: str) -> Callable:
-    def factory(item_name: str) -> str:
+    def enchant(item_name: str) -> str:
         return f"{enchantment_type} {item_name}"
 
-    return factory
+    return enchant
 
 
 def memory_vault() -> dict[str, Callable]:
-    mem = {}
+    mem: dict[str, Any] = {}
+
     def store(key: str, value: Any) -> None:
         mem[key] = value
-    
+
     def recall(key: str) -> Any:
         return mem.get(key, "Memory not found")
-    
+
     return {
         "store": store,
         "recall": recall
     }
 
 
-def main():
-    counter1 = mage_counter()
-    counter2 = mage_counter()
-    print(counter1())
-    print(counter1())
-    print(counter2())
-
-    acc = spell_accumulator(10)
-    print(acc())
-    print(acc())
-
-    fire_enchant = enchantment_factory("Fire")
-    print(fire_enchant("Sword"))
-    print(fire_enchant("Staff"))
-
-    vault = memory_vault()
-    vault["store"]("mana", 100)
-    vault["store"]("spell", "Fireball")
-    print(vault["recall"]("mana"))
-    print(vault["recall"]("spell"))
-
-
 if __name__ == "__main__":
-    main()
-    
+    print("Testing mage counter...")
+    counter_a = mage_counter()
+    counter_b = mage_counter()
+    print(f"counter_a call 1: {counter_a()}")
+    print(f"counter_a call 2: {counter_a()}")
+    print(f"counter_b call 1: {counter_b()}")
+    print()
+
+    print("Testing spell accumulator...")
+    acc = spell_accumulator(100)
+    print(f"Base 100, add 20: {acc(20)}")
+    print(f"Base 100, add 30: {acc(30)}")
+    print()
+
+    print("Testing enchantment factory...")
+    flaming = enchantment_factory("Flaming")
+    frozen = enchantment_factory("Frozen")
+    print(flaming("Sword"))
+    print(frozen("Shield"))
+    print()
+
+    print("Testing memory vault...")
+    vault = memory_vault()
+    vault["store"]("secret", 42)
+    print("Store 'secret' = 42")
+    print(f"Recall 'secret': {vault['recall']('secret')}")
+    print(f"Recall 'unknown': {vault['recall']('unknown')}")

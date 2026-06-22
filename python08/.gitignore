@@ -1,0 +1,12 @@
+# environment variables
+.env
+
+# virtual environments
+matrix_env/
+
+# python cache
+__pycache__/
+*.pyc
+
+# generated files
+matrix_analysis.png
